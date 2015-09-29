@@ -1,0 +1,11 @@
+title: HelloThere
+
+This is a demo of TiddlyWiki5 incorporating a checklist plugin. The example
+below demonstrates the usage of this plugin.
+
+! Installation
+
+To add the plugin to your own TiddlyWiki5, just drag this link to the browser window:
+
+[[$:/plugins/tgrosinger/tw5-checklist]]
+

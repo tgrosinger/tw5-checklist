@@ -1,0 +1,16 @@
+{
+	"description": "Demo of the Checklist plugin",
+	"plugins": [
+		"tgrosinger/tw5-checklist"
+	],
+	"themes": [
+		"tiddlywiki/vanilla",
+		"tiddlywiki/snowwhite"
+	],
+	"includeWikis": [
+	],
+	"build": {
+		"index": [
+			"--rendertiddler","$:/core/save/all","index.html","text/plain"]
+	}
+}

@@ -1,0 +1,29 @@
+title: $:/checklistPlugin/data/ChecklistExample
+type: application/json
+
+{
+    "1": {
+        "text": "Buy milk",
+        "checked": false
+    },
+    "2": {
+        "text": "Take out the trash",
+        "checked": false
+    },
+    "3": {
+        "text": "Feed the dog",
+        "checked": false
+    },
+    "4": {
+        "text": "Shop for mother's day gift",
+        "checked": true
+    },
+    "5": {
+        "text": "Update website",
+        "checked": false
+    },
+    "6": {
+        "text": "Buy concert tickets",
+        "checked": true
+    }
+}

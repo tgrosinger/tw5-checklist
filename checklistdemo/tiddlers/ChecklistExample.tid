@@ -1,0 +1,6 @@
+title: ChecklistExample
+type: text/x-markdown
+
+<$checklist />
+
+Data for this checklist: [[$:/checklistPlugin/data/ChecklistExample]]
