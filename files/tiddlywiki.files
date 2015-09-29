@@ -1,0 +1,12 @@
+{
+	"tiddlers": [
+		{
+			"file": "checklist.css",
+			"fields": {
+				"type": "text/css",
+				"title": "$:/plugins/tgrosinger/tw5-checklist/lib/checklist.css",
+				"tags": "[[$:/tags/Stylesheet]]"
+			}
+		}
+	]
+}

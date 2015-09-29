@@ -1,0 +1,9 @@
+{
+    "title": "$:/plugins/tgrosinger/tw5-checklist",
+    "description": "Widget to create an manage checklists within TiddlyWiki without creating a new tiddler for each task.",
+    "author": "Tony Grosinger",
+    "version": "0.0.1",
+    "core-version": ">=5.0.9",
+    "source": "https://github.com/tgrosinger/tw5-checklist",
+    "plugin-type": "plugin"
+}
