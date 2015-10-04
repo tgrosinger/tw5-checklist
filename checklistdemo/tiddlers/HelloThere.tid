@@ -9,3 +9,12 @@ To add the plugin to your own TiddlyWiki5, just drag this link to the browser wi
 
 [[$:/plugins/tgrosinger/tw5-checklist]]
 
+! Contributing
+
+Want to help out or have issues to report?
+
+<a href="https://github.com/tgrosinger/tw5-checklist" class="tc-btn-big-green"
+style="background-color:#444;" target="_blank">
+{{$:/core/images/github}} tw5-checklist on ~GitHub
+</a>
+
