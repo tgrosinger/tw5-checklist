@@ -50,6 +50,16 @@ ChecklistWidget.prototype.execute = function() {
         this.storageName = storageBase + this.tiddlerTitle + "-" + name;
     }
 
+    var data = this.wiki.getTiddlerData(this.storageName);
+    if (data.checked === undefined) {
+        this.wiki.setText(this.storageName, "text", "checked", []);
+    }
+    if (data.unchecked === undefined) {
+        this.wiki.setText(this.storageName, "text", "unchecked", []);
+    }
+
+    this.migrate();
+
     // Make child widgets
     this.makeChildWidgets();
 };
@@ -76,55 +86,6 @@ ChecklistWidget.prototype.removeChildDomNodes = function() {
 // Create the actual checkbox UI, one list item for each checklist item
 ChecklistWidget.prototype.create = function() {
     var domNode = $tw.utils.domMaker("div",{class:"checklist"});
-    var domList = document.createElement("ul");
-    domNode.appendChild(domList);
-
-    // Store the ul so we can add items to it later
-    this.domList = domList;
-
-    var listItems = this.wiki.getTiddlerData(this.storageName, {});
-    for (var index in listItems) {
-        var checklistItem = listItems[index];
-        var listItem = document.createElement('li');
-
-        var checkbox = document.createElement('input');
-        checkbox.type = "checkbox";
-        checkbox.name = "box-" + index;
-        checkbox.id = "box-" + index;
-        if (checklistItem.checked) {
-            checkbox.checked = true;
-        }
-
-        var itemText = document.createElement('input');
-        itemText.type = "text";
-        itemText.value = checklistItem.text;
-        itemText.id = "itemtext-" + index;
-
-        var del = document.createElement('button');
-        del.innerHTML = "✘";
-        del.className = "checklist-del";
-        del.id = "del-" + index;
-
-        // add handler to change list item state when checkbox state is changed
-        $tw.utils.addEventListeners(checkbox, [
-            {name: "change", handlerObject: this, handlerMethod: "handleCheckboxChangeEvent"}
-        ]);
-
-        // add handler to update list item text on textbox blur
-        $tw.utils.addEventListeners(itemText, [
-            {name: "blur", handlerObject: this, handlerMethod: "handleItemTextChangeEvent"}
-        ]);
-
-        // add handler to delete tiddler when ✘ button is clicked
-        $tw.utils.addEventListeners(del, [
-            {name: "click", handlerObject: this, handlerMethod: "handleDeleteItemEvent"}
-        ]);
-
-        listItem.appendChild(checkbox);
-        listItem.appendChild(itemText);
-        listItem.appendChild(del);
-        domList.appendChild(listItem);
-    }
 
     var addItemButton = document.createElement('button');
     addItemButton.innerHTML = "New List Item";
@@ -133,6 +94,60 @@ ChecklistWidget.prototype.create = function() {
         {name:"click", handlerObject: this, handlerMethod: "handleAddItemButton"}
     ]);
     domNode.appendChild(addItemButton);
+
+    var domList = document.createElement("ul");
+    domNode.appendChild(domList);
+    this.domList = domList;
+
+    var addItem = function(text, prefix, handler) {
+        var listItem = document.createElement('li');
+
+        var checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.name = "box-" + i;
+        checkbox.id = prefix + "-box-" + i;
+        if (prefix == "checked") {
+            checkbox.checked = true;
+        }
+
+        var itemText = document.createElement('input');
+        itemText.type = "text";
+        itemText.value = text;
+        itemText.id = prefix + "-itemtext-" + i;
+
+        var del = document.createElement('button');
+        del.innerHTML = "✘";
+        del.className = "checklist-del";
+        del.id = prefix + "-del-" + i;
+
+        // add handler to change list item state when checkbox state is changed
+        $tw.utils.addEventListeners(checkbox, [
+            {name: "change", handlerObject: handler, handlerMethod: "handleCheckboxCheckEvent"}
+        ]);
+
+        // add handler to update list item text on textbox blur
+        $tw.utils.addEventListeners(itemText, [
+            {name: "blur", handlerObject: handler, handlerMethod: "handleItemTextChangeEvent"}
+        ]);
+
+        // add handler to delete tiddler when ✘ button is clicked
+        $tw.utils.addEventListeners(del, [
+            {name: "click", handlerObject: handler, handlerMethod: "handleDeleteItemEvent"}
+        ]);
+
+        listItem.appendChild(checkbox);
+        listItem.appendChild(itemText);
+        listItem.appendChild(del);
+        domList.appendChild(listItem);
+    };
+
+    var listItems = this.wiki.getTiddlerData(this.storageName);
+    for (var i = 0; i < listItems.unchecked.length; i++) {
+        addItem(listItems.unchecked[i], "unchecked", this);
+    }
+    for (var i = 0; i < listItems.checked.length; i++) {
+        addItem(listItems.checked[i], "checked", this);
+    }
 
     var clearChecksButton = document.createElement('button');
     clearChecksButton.innerHTML = "Clear Checks";
@@ -145,18 +160,34 @@ ChecklistWidget.prototype.create = function() {
     return domNode;
 };
 
-// Helper function to extract the data-tiddler index from a UI element
-ChecklistWidget.prototype.extractItemID = function(event) {
-    var itemName = event.target.id;
-    return itemName.split("-")[1];
-}
+// Event handler which runs when a checkbox is clicked
+ChecklistWidget.prototype.handleCheckboxCheckEvent = function(event) {
+    var itemInfo = this.extractItemID(event);
+    var data = this.wiki.getTiddlerData(this.storageName);
+
+    if (itemInfo.checked == "checked") {
+        data.unchecked.push(data.checked[itemInfo.index]);
+        data.checked.splice(itemInfo.index, 1);
+    } else {
+        data.checked.unshift(data.unchecked[itemInfo.index]);
+        data.unchecked.splice(itemInfo.index, 1);
+    }
+
+    this.storeNewData(data);
+    this.refreshSelf();
+    return true;
+};
 
 // Event handler which runs when a text box is changed (on blur)
 ChecklistWidget.prototype.handleItemTextChangeEvent = function(event) {
-    var index = this.extractItemID(event);
-    var listItem = this.wiki.getTiddlerData(this.storageName)[index];
-    listItem.text = event.target.value;
-    this.updateListItem(index, listItem);
+    var itemInfo = this.extractItemID(event);
+    var data = this.wiki.getTiddlerData(this.storageName);
+
+    data[itemInfo.checked][itemInfo.index] = event.target.value;
+
+    this.storeNewData(data);
+    this.refreshSelf();
+    return true;
 };
 
 // Event handler which runs when the "New List Item" button is clicked
@@ -169,8 +200,7 @@ ChecklistWidget.prototype.handleAddItemButton = function(event) {
         {name:"blur", handlerObject: this, handlerMethod: "handleNewItemBlur"}
     ]);
 
-    this.domList.appendChild(newItem);
-
+    this.domList.insertBefore(newItem, this.domList.firstChild);
     newItem.focus();
     return true;
 };
@@ -179,81 +209,76 @@ ChecklistWidget.prototype.handleAddItemButton = function(event) {
 ChecklistWidget.prototype.handleNewItemBlur = function(event) {
     var text = event.target.value;
     if (text !== "") {
-        this.addListItem(text);
+        var data = this.wiki.getTiddlerData(this.storageName);
+        data.unchecked.unshift(text);
+        this.wiki.setText(this.storageName, "text", "unchecked", data.unchecked);
     }
 
     this.refreshSelf();
+    return true;
 };
 
 // Event handler which runs when the "Clear Checks" button is clicked
 ChecklistWidget.prototype.handleClearChecksButton = function(event) {
-    var listItems = this.wiki.getTiddlerData(this.storageName, {});
-    for (var index in listItems) {
-        listItems[index].checked = false;
-        this.updateListItem(index, listItems[index]);
+    var data = this.wiki.getTiddlerData(this.storageName);
+    for (var index in data.checked) {
+        data.unchecked.push(data.checked[index]);
     }
 
+    data.checked = [];
+    this.storeNewData(data);
     this.refreshSelf();
+    return true;
 };
 
 // Event handler which runs when a list item delete button is clicked
 ChecklistWidget.prototype.handleDeleteItemEvent = function(event) {
-    var index = this.extractItemID(event);
-    this.deleteListItem(index);
+    var itemInfo = this.extractItemID(event);
+    var data = this.wiki.getTiddlerData(this.storageName);
+    data[itemInfo.checked].splice(itemInfo.index, 1);
 
+    this.storeNewData(data);
     this.refreshSelf();
     return true;
 };
 
-// Helper function to remove an item from the list
-ChecklistWidget.prototype.deleteListItem = function(index) {
-    this.updateListItem(index, undefined);
+// Helper function which takes an object with a "checked" and "unchecked" value
+// and persists both to the underlying data tiddler
+ChecklistWidget.prototype.storeNewData = function(data) {
+    this.wiki.setText(this.storageName, "text", "checked", data.checked);
+    this.wiki.setText(this.storageName, "text", "unchecked", data.unchecked);
+};
 
-    var listItems = this.wiki.getTiddlerData(this.storageName, {});
-    var lastIndex;
-    for (var i in listItems) {
-        lastIndex = i;
-        if (i <= index) {
-            continue;
+// Helper function which returns an object containing "checked" (string) and
+// "index" (int) for the list item target of an event.
+ChecklistWidget.prototype.extractItemID = function(event) {
+    var nameParts = event.target.id.split("-");
+    var checked = nameParts[0],
+        index =  nameParts[2];
+    return {checked: checked, index: index};
+};
+
+// Gracefully migrates data from < 0.0.2 to the new version
+ChecklistWidget.prototype.migrate = function() {
+    var data = this.wiki.getTiddlerData(this.storageName);
+    var madeChange = false;
+    for (var key in data) {
+        if (key != "checked" && key != "unchecked") {
+            var value = data[key];
+            if (value.checked) {
+                data.checked.unshift(value.text);
+            } else {
+                data.unchecked.unshift(value.text);
+            }
+
+            madeChange = true;
+            this.wiki.setText(this.storageName, "text", key, undefined);
         }
-
-        this.updateListItem(i-1, listItems[i]);
     }
 
-    if (lastIndex > index) {
-        this.updateListItem(lastIndex, undefined);
+    if (madeChange) {
+        this.storeNewData(data);
     }
-};
-
-// Helper function to change the value of an item in the data tiddler
-ChecklistWidget.prototype.updateListItem = function(index, data) {
-    this.wiki.setText(this.storageName, "text", index, data);
-};
-
-// Helper function to add a new item to the data tiddler
-ChecklistWidget.prototype.addListItem = function(text) {
-    var existingListItems = this.wiki.getTiddlerData(this.storageName, {});
-    var index = Object.keys(existingListItems).length + 1;
-    this.updateListItem(index, {"text": text, "checked": false});
-};
-
-// Helper function to change the checked status of an item in the data tiddler
-ChecklistWidget.prototype.toggleChecked = function(index) {
-    var listItem = this.wiki.getTiddlerData(this.storageName)[index];
-    listItem.checked = !listItem.checked;
-
-    this.updateListItem(index, listItem);
-};
-
-// Event handler which runs when a list item checkbox is clicked
-ChecklistWidget.prototype.handleCheckboxChangeEvent = function(event) {
-    var index = this.extractItemID(event);
-    this.toggleChecked(index);
-
-    // refresh this widget, and thereby the child widgets AND the enclosed
-    // content of this widget
-    this.refreshSelf();
-    return true;
 };
 
 exports.checklist = ChecklistWidget;
