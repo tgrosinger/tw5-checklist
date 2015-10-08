@@ -3,9 +3,9 @@ title: $:/plugins/tgrosinger/tw5-checklist/readme
 This plugin provides a simple checklist which does not create a new tiddler for
 each task. Features include:
 
-* Support for multiple checklists in a single tiddler
-* Edit task text
+* Check and uncheck items. Checked items move to the bottom.
+* Easily update item text
 * Clear all checks (re-usable lists)
-* Simple
+* Simple, no configuration necessary
 
 [[Source code|https://github.com/tgrosinger/tw5-checklist]]

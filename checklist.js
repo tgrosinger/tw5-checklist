@@ -4,10 +4,9 @@ type: application/javascript
 module-type: widget
 
 Implements the <$checklist> widget - to render a list of checkboxes representing a checklist.
-The name field must be specified if there is more than one checklist in a tiddler to disambiguate where the checklist data should be saved.
 
 ```
-<$checklist name=""/>
+<$checklist />
 ```
 
 \*/
@@ -39,26 +38,9 @@ ChecklistWidget.prototype.render = function(parent,nextSibling) {
 };
 
 ChecklistWidget.prototype.execute = function() {
-    this.tiddlerTitle = this.getAttribute("tiddler",this.getVariable("currentTiddler"));
-
-    // Generate the name for the storage tiddler
-    var name = this.getAttribute("name");
-    var storageBase = "$:/checklistPlugin/data/";
-    if (name !== undefined || name !== "") {
-        this.storageName = storageBase + this.tiddlerTitle;
-    } else {
-        this.storageName = storageBase + this.tiddlerTitle + "-" + name;
-    }
-
-    var data = this.wiki.getTiddlerData(this.storageName);
-    if (data.checked === undefined) {
-        this.wiki.setText(this.storageName, "text", "checked", []);
-    }
-    if (data.unchecked === undefined) {
-        this.wiki.setText(this.storageName, "text", "unchecked", []);
-    }
-
-    this.migrate();
+    var tiddlerTitle = this.getAttribute("tiddler", this.getVariable("currentTiddler"));
+    this.storageName = "$:/checklistPlugin/data/" + tiddlerTitle;
+    this.createStorage();
 
     // Make child widgets
     this.makeChildWidgets();
@@ -258,10 +240,30 @@ ChecklistWidget.prototype.extractItemID = function(event) {
     return {checked: checked, index: index};
 };
 
+// Create a new data storage tiddler for this checklist and migrate the existing
+// data if necessary.
+ChecklistWidget.prototype.createStorage = function() {
+    if (!this.wiki.tiddlerExists(this.storageName)) {
+        this.wiki.setTiddlerData(this.storageName, {"checked": [], "unchecked": []});
+    } else {
+        this.migrate();
+    }
+};
+
 // Gracefully migrates data from < 0.0.2 to the new version
 ChecklistWidget.prototype.migrate = function() {
     var data = this.wiki.getTiddlerData(this.storageName);
     var madeChange = false;
+
+    if (data.checked === undefined) {
+        this.wiki.setText(this.storageName, "text", "checked", []);
+        madeChange = true;
+    }
+    if (data.unchecked === undefined) {
+        this.wiki.setText(this.storageName, "text", "unchecked", []);
+        madeChange = true;
+    }
+
     for (var key in data) {
         if (key != "checked" && key != "unchecked") {
             var value = data[key];
