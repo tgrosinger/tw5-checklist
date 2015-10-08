@@ -39,8 +39,13 @@ ChecklistWidget.prototype.render = function(parent,nextSibling) {
 
 ChecklistWidget.prototype.execute = function() {
     var tiddlerTitle = this.getAttribute("tiddler", this.getVariable("currentTiddler"));
-    this.storageName = "$:/checklistPlugin/data/" + tiddlerTitle;
-    this.createStorage();
+    this.draftMode = tiddlerTitle.startsWith("Draft of");
+
+    // Do not create storage or render when in draft mode
+    if (!this.draftMode) {
+        this.storageName = "$:/checklistPlugin/data/" + tiddlerTitle;
+        this.createStorage();
+    }
 
     // Make child widgets
     this.makeChildWidgets();
@@ -66,7 +71,15 @@ ChecklistWidget.prototype.removeChildDomNodes = function() {
 };
 
 // Create the actual checkbox UI, one list item for each checklist item
+// Will not render checklist when in draftMode
 ChecklistWidget.prototype.create = function() {
+    if (this.draftMode) {
+        var domNode = $tw.utils.domMaker("div", {});
+        var text = document.createTextNode("Cannot render checklist while editing");
+        domNode.appendChild(text);
+        return domNode;
+    }
+
     var domNode = $tw.utils.domMaker("div",{class:"checklist"});
 
     var addItemButton = document.createElement('button');
