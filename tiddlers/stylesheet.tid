@@ -1,16 +1,20 @@
-.checklist ul {
+title: $:/plugins/tgrosinger/tw5-checklist/stylesheet
+tags: $:/tags/Stylesheet
+type: text/css
+
+ul.checklist {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
+input[type="checkbox"].checklist {
+    margin-right: 5px;
+}
+
 button.checklist-del {
     border: none;
     background-color: inherit;
-}
-
-.checklist input[type="checkbox"] {
-    margin-right: 5px;
 }
 
 .checklist input[type="text"] {
