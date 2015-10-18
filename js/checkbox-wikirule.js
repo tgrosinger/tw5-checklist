@@ -36,13 +36,14 @@ exports.parse = function() {
             type: "element",
             tag: "input",
             attributes: {
-                type: {type: "string", value: "checkbox"}
+                type: {type: "string", value: "checkbox"},
+                pos: {type: "string", value: match.index}
             }
-        }
+        };
         if (match[1] === "x" || match[1] === "X") {
-            checkbox.attributes.checked = {type: "boolean", value: true}
+            checkbox.attributes.checked = {type: "boolean", value: true};
         }
-        parseResults.tree.unshift(checkbox)
+        parseResults.tree.unshift(checkbox);
 
         listItems.push({
             type: "element",
