@@ -1,6 +1,9 @@
 title: ChecklistExample
 type: text/x-markdown
 
-<$checklist />
+! My Shopping List
 
-Data for this checklist: [[$:/checklistPlugin/data/ChecklistExample]]
+[ ] Milk
+[ ] Eggs
+[x] Bread
+
