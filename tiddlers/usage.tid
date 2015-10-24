@@ -2,34 +2,43 @@ title: $:/plugins/tgrosinger/tw5-checklist/usage
 
 ! Creating a New Checklist
 
-This plugin provides a widget for use in normal wikitext tiddlers.
+This plugin provides a wikitext rule for use in normal wikitext tiddlers. A
+checklist is defined as two brackets with either a <kbd>space</kbd> or an
+<kbd>x</kbd> between them.
 
 ```
-<$checklist />
-```
+! My Shopping List
 
-This declaraction will create a new checklist, storing the list items in a
-hidden JSON data tiddler located at `$:/checklistPlugin/data/<tiddler-name>`.
+[ ] Milk
+[ ] Eggs
+[x] Bread
+
+```
 
 !! Multiple Checklists
 
-Multiple checklists may be displayed in a single tiddler through the use of
-[[transclusion|http://tiddlywiki.com/#Transclusion]].
-
-First, create each checklist in an individual tiddler. When finished, create the
-main tiddler and transclude the separate lists as shown below.
+There is no need to declare an instance of a checklist, and you can place
+checklist items throughout a tiddler. Each set of consecutive (single new-line
+delimited) checklist items will be displayed as a single checklist.
 
 ```
-
 ! My first list
 
-{{My first list}}
+[ ] Item 1
+[x] Item 2
 
 ! My second list
 
-{{My second list}}
+[x] Item 3
+[x] Item 4
 
 ```
+
+!! List Item Formatting
+
+List items support any inline formatting rules. This means you can create links,
+bold, or anything else found on the
+[[Formatting in WikiText|http://tiddlywiki.com/static/Formatting%2520in%2520WikiText.html]] guide.
 
 ! Configuration
 
