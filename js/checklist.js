@@ -92,6 +92,7 @@ CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
     var pos = firstItem.childNodes[0].attributes.pos.nodeValue;
 
     var newItem = "[ ] " + event.target.value.trim() + "\n";
+    event.target.value = "";
 
     var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
     tiddlerBody = tiddlerBody.substring(0, pos) + newItem + tiddlerBody.substring(pos);
