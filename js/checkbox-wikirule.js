@@ -24,13 +24,50 @@ exports.parse = function() {
     var listItems = [];
     var match = this.match;
 
+    // Start the list with a "New List Item" placeholder
+    listItems.push({
+        type: "element",
+        tag: "li",
+        children: [
+            {
+                type: "element",
+                tag: "span",
+                attributes: {
+                    class: {type: "string", value: "checklist-newitem-icon"}
+                },
+                children: [
+                    // Fancy pencil icon
+                    {type: "entity", entity: "&#x270e;"}
+                ]
+            },
+            {
+                type: "element",
+                tag: "input",
+                attributes: {
+                    class: {type: "string", value: "checklist-newitem"},
+                    placeholder: {type: "string", value: "New List Item (WikiText)"}
+                }
+            }
+        ]
+    });
+
     do {
         var startPos = this.parser.pos;
         this.parser.pos = this.matchRegExp.lastIndex;
         var parseResults = this.parser.wiki.parseText(
-                undefined, // Defaults to "text/vnd.tiddlywiki"
+                "text/vnd.tiddlywiki",
                 this.parser.source.substring(startPos + 4, this.parser.pos),
                 {parseAsInline: true});
+
+        // Put the listitem body in a span for easy reference
+        var itembody = {
+            type: "element",
+            tag: "span",
+            attributes: {
+                class: {type: "string", value: "checklistitem-body"}
+            },
+            children: parseResults.tree
+        };
 
         var checkbox = {
             type: "element",
@@ -43,12 +80,14 @@ exports.parse = function() {
         if (match[1] === "x" || match[1] === "X") {
             checkbox.attributes.checked = {type: "boolean", value: true};
         }
-        parseResults.tree.unshift(checkbox);
 
         listItems.push({
             type: "element",
             tag: "li",
-            children: parseResults.tree
+            children: [
+                checkbox,
+                itembody
+            ]
         });
 
         match = this.matchRegExp.exec(this.parser.source);

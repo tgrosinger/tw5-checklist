@@ -6,10 +6,10 @@ each task. Features include:
 [x] Check and uncheck items
 [x] Simple, no configuration necessary
 [x] Easily editable, and easy to read in edit view
+[x] Add new list items without using edit mode
 
 Feature Wishlist:
 
-[ ] Add new list items without using edit mode
 [ ] Move completed items to bottom of list
 [ ] Edit list item text without using edit mode
 [ ] Clear all checkmarks with single click

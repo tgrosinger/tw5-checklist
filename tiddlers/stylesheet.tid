@@ -8,39 +8,17 @@ ul.checklist {
     padding: 0;
 }
 
-input[type="checkbox"].checklist {
-    margin-right: 5px;
+span.checklistitem-body {
+    margin-left: 5px;
 }
 
-button.checklist-del {
+input.checklist-newitem {
+    margin-left: 5px;
+    padding: 5px;
     border: none;
-    background-color: inherit;
+    border-bottom: solid 2px #c9c9c9;
+    transition: border 0.3s;
 }
-
-.checklist input[type="text"] {
-    background-color: inherit;
-    border: none;
-    width: 75%;
-    border-bottom-style: dashed;
-    border-bottom-width: 1px;
-}
-
-.checklist input[type="text"]:focus {
-    border-bottom-style: none;
-}
-
-button.checklist-ctrl {
-    transition: all 0.3s ease 0s;
-    -moz-transition: all 0.3s ease 0s;
-    -webkit-transition: all 0.3s ease 0s;
-    background: none repeat scroll 0 0 #999999;
-    color: #FFFFFF;
-    border: 0 none;
-    border-radius: 2px 2px 2px 2px;
-    margin-right: 5px;
-    margin-top: 5px;
-}
-
-button.checklist-ctrl:hover {
-    background: none repeat scroll 0 0 #444444;
+input:focus.checklist-newitem {
+  border-bottom: solid 2px #969696;
 }
