@@ -17,7 +17,7 @@ exports.init = function(parser) {
 	this.parser = parser;
 
 	// Match on [ ], [x], and [X], to the end of the line
-	this.matchRegExp = /\[([ xX])\] .*$/mg;
+	this.matchRegExp = /^\[([ xX])\] .*$/mg;
 };
 
 exports.parse = function() {
