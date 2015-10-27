@@ -7,10 +7,11 @@ each task. Features include:
 [x] Simple, no configuration necessary
 [x] Easily editable, and easy to read in edit view
 [x] Add new list items without using edit mode
+[x] Move completed items to bottom of list
 
 Feature Wishlist:
 
-[ ] Move completed items to bottom of list
+[ ] Delete list items without using edit mode
 [ ] Edit list item text without using edit mode
 [ ] Clear all checkmarks with single click
 

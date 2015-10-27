@@ -26,6 +26,8 @@ Render this widget into the DOM
 */
 CheckListWidget.prototype.render = function(parent,nextSibling) {
     this.tiddlerTitle = this.getVariable("currentTiddler");
+    this.startPos = parseInt(this.parseTreeNode.attributes.listStartPos.value);
+    this.stopPos = parseInt(this.parseTreeNode.attributes.listStopPos.value);
 
     this.parentDomNode = parent;
     this.nextSibling = nextSibling;
@@ -53,10 +55,12 @@ CheckListWidget.prototype.execute = function() {
                     {name: "blur", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"},
                     {name: "keyup", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"}
             ]);
-        } else {
-            // Normal list item, use checkbox listener
+        } else if (childNode.childNodes[0].checked) {
             $tw.utils.addEventListeners(childNode,
-                    [{name: "change", handlerObject: this, handlerMethod: "handleCheckboxEvent"}]);
+                    [{name: "change", handlerObject: this, handlerMethod: "handleUncheckEvent"}]);
+        } else {
+            $tw.utils.addEventListeners(childNode,
+                    [{name: "change", handlerObject: this, handlerMethod: "handleCheckEvent"}]);
         }
     }.bind(this));
 
@@ -99,21 +103,66 @@ CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
     $tw.wiki.setText(this.tiddlerTitle, "text", null, tiddlerBody);
 };
 
-// Toggle the checked status when the user clicks the checkbox
-CheckListWidget.prototype.handleCheckboxEvent = function(event) {
-    // This check is inverted because the check action inverts the action state
-    var wasChecked = !event.target.parentNode.childNodes[0].checked;
-    var pos = parseInt(event.target.attributes.pos.nodeValue);
+CheckListWidget.prototype.handleCheckEvent = function(event) {
+    var domItem = event.target.parentNode;
+    var domList = domItem.parentNode;
+    var itemIndex = [].indexOf.call(domList.childNodes, domItem) - 1;
 
     var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
+    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
 
-    if (wasChecked) {
-        tiddlerBody = tiddlerBody.substring(0, pos + 1) + " " + tiddlerBody.substring(pos + 2);
-    } else {
-        tiddlerBody = tiddlerBody.substring(0, pos + 1) + "x" + tiddlerBody.substring(pos + 2);
+    // Find the index of the first checked item
+    var i = 1;
+    var firstChecked = domItem.nextSibling;
+    while (firstChecked !== null && !firstChecked.childNodes[0].checked) {
+        i++;
+        firstChecked = firstChecked.nextSibling;
     }
 
-    $tw.wiki.setText(this.tiddlerTitle, "text", null, tiddlerBody);
+    // Update the tiddler data
+    bodyList[itemIndex] = bodyList[itemIndex].replace("[ ]", "[x]");
+    bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
+    bodyList.splice(itemIndex, 1);
+
+    var newBody = tiddlerBody.substring(0, this.startPos) +
+                  bodyList.join("\n") +
+                  tiddlerBody.substring(this.stopPos);
+    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
+
+    // Update the DOM (pre-refresh for animations)
+    domList.insertBefore(domItem, firstChecked);
+};
+
+CheckListWidget.prototype.handleUncheckEvent = function(event) {
+    var domItem = event.target.parentNode;
+    var domList = domItem.parentNode;
+    var itemIndex = [].indexOf.call(domList.childNodes, domItem) - 1;
+
+    var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
+    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
+
+    // Find the index of the first checked item
+    var i = 0;
+    var firstChecked = domList.firstChild.nextSibling; // Skip the newItem input
+    while (firstChecked !== null) {
+        if (firstChecked.childNodes[0].checked || firstChecked == domItem) {
+            break;
+        }
+        i++;
+        firstChecked = firstChecked.nextSibling;
+    }
+
+    // Update the tiddler data
+    var itemBody = bodyList[itemIndex].replace("[x]", "[ ]");
+    bodyList.splice(itemIndex, 1);
+    bodyList.splice(i, 0, itemBody);
+    var newBody = tiddlerBody.substring(0, this.startPos) +
+                  bodyList.join("\n") +
+                  tiddlerBody.substring(this.stopPos);
+    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
+
+    // Update the DOM (pre-refresh for animations)
+    domList.insertBefore(domItem, firstChecked);
 };
 
 /*

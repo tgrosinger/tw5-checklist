@@ -22,6 +22,7 @@ exports.init = function(parser) {
 
 exports.parse = function() {
     var listItems = [];
+    var listStartPos = this.parser.pos;
     var match = this.match;
 
     // Start the list with a "New List Item" placeholder
@@ -95,6 +96,10 @@ exports.parse = function() {
 
     return [{
         type: "checklist",
+        attributes: {
+            listStartPos: {type: "string", value: listStartPos},
+            listStopPos:  {type: "string", value: this.parser.pos}
+        },
         children: listItems
     }];
 };
