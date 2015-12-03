@@ -46,7 +46,7 @@ exports.parse = function() {
                 tag: "input",
                 attributes: {
                     class: {type: "string", value: "checklist-newitem"},
-                    placeholder: {type: "string", value: "New List Item (WikiText)"}
+                    placeholder: {type: "string", value: "New list item (WikiText)"}
                 }
             }
         ]
@@ -82,12 +82,25 @@ exports.parse = function() {
             checkbox.attributes.checked = {type: "boolean", value: true};
         }
 
+        var removeicon = {
+            type: "element",
+            tag: "div",
+            attributes: {
+                class: {type: "string", value: "checklist-removeitem-icon"}
+            },
+            children: [
+                // Fancy X icon
+                {type: "entity", entity: "&#x2716;"}
+            ]
+        };
+
         listItems.push({
             type: "element",
             tag: "li",
             children: [
                 checkbox,
-                itembody
+                itembody,
+                removeicon
             ]
         });
 

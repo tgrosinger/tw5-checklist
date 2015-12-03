@@ -55,12 +55,17 @@ CheckListWidget.prototype.execute = function() {
                     {name: "blur", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"},
                     {name: "keyup", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"}
             ]);
-        } else if (childNode.childNodes[0].checked) {
-            $tw.utils.addEventListeners(childNode,
-                    [{name: "change", handlerObject: this, handlerMethod: "handleUncheckEvent"}]);
         } else {
-            $tw.utils.addEventListeners(childNode,
-                    [{name: "change", handlerObject: this, handlerMethod: "handleCheckEvent"}]);
+            if (childNode.childNodes[0].checked) {
+                $tw.utils.addEventListeners(childNode,
+                        [{name: "change", handlerObject: this, handlerMethod: "handleUncheckEvent"}]);
+            } else {
+                $tw.utils.addEventListeners(childNode,
+                        [{name: "change", handlerObject: this, handlerMethod: "handleCheckEvent"}]);
+            }
+            $tw.utils.addEventListeners(childNode.childNodes[2], [
+                {name: "click", handlerObject: this, handlerMethod: "handleRemoveEvent"}
+            ]);
         }
     }.bind(this));
 
@@ -88,11 +93,11 @@ CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
 
     if (event.target.value.trim() === "") {
         // Don't save an empty list item
-        return
+        return;
     }
 
     var checklist = event.target.parentNode.parentNode;
-    var firstItem = checklist.childNodes[1]
+    var firstItem = checklist.childNodes[1];
     var pos = firstItem.childNodes[0].attributes.pos.nodeValue;
 
     var newItem = "[ ] " + event.target.value.trim() + "\n";
@@ -165,6 +170,22 @@ CheckListWidget.prototype.handleUncheckEvent = function(event) {
     domList.insertBefore(domItem, firstChecked);
 };
 
+CheckListWidget.prototype.handleRemoveEvent = function (event) {
+    var domItem = event.target.parentNode;
+    var domList = domItem.parentNode;
+    var itemIndex = [].indexOf.call(domList.childNodes, domItem) - 1;
+
+    var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
+    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
+
+    // Update the tiddler data
+    bodyList.splice(itemIndex, 1);
+    var newBody = tiddlerBody.substring(0, this.startPos) +
+                  bodyList.join("\n") +
+                  tiddlerBody.substring(this.stopPos);
+    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
+};
+
 /*
 Selectively refreshes the widget if needed.
 Returns true if the widget or any of its children needed re-rendering
@@ -173,7 +194,7 @@ CheckListWidget.prototype.refresh = function(changedTiddlers) {
     var changedAttributes = this.computeAttributes();
     // Refresh if an attribute has changed, or the type associated with
     // the target tiddler has changed
-    if(changedAttributes.tiddler || changedAttributes.field || changedAttributes.index || 
+    if(changedAttributes.tiddler || changedAttributes.field || changedAttributes.index ||
             (changedTiddlers[this.editTitle] && this.getEditorType() !== this.editorType)) {
         this.refreshSelf();
         return true;
