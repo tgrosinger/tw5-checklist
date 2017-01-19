@@ -8,8 +8,8 @@ Save and reload the wiki to activate changes.
   <tr>
     <th align="left">Rearrange checked items:</th>
     <td>
-        <$checkbox field="move-checked" checked="true" unchecked="false"
-        default="true"></$checkbox>
+        <$checkbox field="move-checked" tiddler="$:/plugins/tgrosinger/tw5-checklist/Configuration"
+            checked="true" unchecked="false" default="true"></$checkbox>
     </td>
   </tr>
 </table>
