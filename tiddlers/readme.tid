@@ -9,10 +9,4 @@ each task. Features include:
 [x] Add new list items without using edit mode
 [x] Move completed items to bottom of list
 
-Feature Wishlist:
-
-[ ] Delete list items without using edit mode
-[ ] Edit list item text without using edit mode
-[ ] Clear all checkmarks with single click
-
 [[Source code|https://github.com/tgrosinger/tw5-checklist]]
