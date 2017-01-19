@@ -3,8 +3,8 @@ title: HelloThere
 This is a demo of TiddlyWiki5 incorporating a checklist plugin. The example
 below demonstrates the usage of this plugin.
 
-The plugin [[Usage|$:/plugins/tgrosinger/tw5-checklist/usage]]
-and [[Readme|$:/plugins/tgrosinger/tw5-checklist/readme]]
+The plugin [[Usage|$:/plugins/tgrosinger/tw5-checklist/Usage]]
+and [[Readme|$:/plugins/tgrosinger/tw5-checklist/Readme]]
 tiddlers contain additional details.
 
 ! Installation
