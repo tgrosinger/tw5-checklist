@@ -1,0 +1,15 @@
+title: $:/plugins/tgrosinger/tw5-checklist/Configuration
+
+Please see the [[homepage|https://grosinger.net/tw5-checklist/]] for more information on the options.
+
+Save and reload the wiki to activate changes.
+
+<table>
+  <tr>
+    <th align="left">Rearrange checked items:</th>
+    <td>
+        <$checkbox field="move-checked" checked="true" unchecked="false"
+        default="true"></$checkbox>
+    </td>
+  </tr>
+</table>

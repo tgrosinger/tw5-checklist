@@ -36,6 +36,17 @@ CheckListWidget.prototype.render = function(parent,nextSibling) {
 };
 
 /*
+Retrieve the configuration state indicating if items should be re-arranged
+*/
+CheckListWidget.prototype.shouldMoveChecked = function() {
+    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
+    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
+    var moveChecked = configWidgetFields["move-checked"] || "true";
+    return (moveChecked === "true");
+}
+
+/*
 Compute the internal state of the widget
 */
 CheckListWidget.prototype.execute = function() {
@@ -126,16 +137,24 @@ CheckListWidget.prototype.handleCheckEvent = function(event) {
 
     // Update the tiddler data
     bodyList[itemIndex] = bodyList[itemIndex].replace("[ ]", "[x]");
-    bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
-    bodyList.splice(itemIndex, 1);
 
+    // Rearrange items (if configured to do so)
+    var shouldMove = this.shouldMoveChecked();
+    if (shouldMove) {
+        bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
+        bodyList.splice(itemIndex, 1);
+    }
+
+    // Save the updated body
     var newBody = tiddlerBody.substring(0, this.startPos) +
                   bodyList.join("\n") +
                   tiddlerBody.substring(this.stopPos);
     $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
 
-    // Update the DOM (pre-refresh for animations)
-    domList.insertBefore(domItem, firstChecked);
+    if (shouldMove) {
+        // Update the DOM (pre-refresh for animations)
+        domList.insertBefore(domItem, firstChecked);
+    }
 };
 
 CheckListWidget.prototype.handleUncheckEvent = function(event) {
@@ -158,16 +177,25 @@ CheckListWidget.prototype.handleUncheckEvent = function(event) {
     }
 
     // Update the tiddler data
-    var itemBody = bodyList[itemIndex].replace("[x]", "[ ]");
-    bodyList.splice(itemIndex, 1);
-    bodyList.splice(i, 0, itemBody);
+    bodyList[itemIndex] = bodyList[itemIndex].replace("[x]", "[ ]");
+
+    // Rearrange items (if configured to do so)
+    var shouldMove = this.shouldMoveChecked();
+    if (shouldMove) {
+        var bodyItem = bodyList[itemIndex];
+        bodyList.splice(itemIndex, 1);
+        bodyList.splice(i, 0, bodyItem);
+    }
+
     var newBody = tiddlerBody.substring(0, this.startPos) +
                   bodyList.join("\n") +
                   tiddlerBody.substring(this.stopPos);
     $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
 
-    // Update the DOM (pre-refresh for animations)
-    domList.insertBefore(domItem, firstChecked);
+    if (shouldMove) {
+        // Update the DOM (pre-refresh for animations)
+        domList.insertBefore(domItem, firstChecked);
+    }
 };
 
 CheckListWidget.prototype.handleRemoveEvent = function (event) {
