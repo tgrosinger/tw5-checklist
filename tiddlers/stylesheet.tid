@@ -20,6 +20,11 @@ span.checklistitem-body {
     margin-left: 5px;
 }
 
+span.checkedchecklistitem-body {
+    color: #ddd;
+    text-decoration: line-through;
+}
+
 input.checklist-newitem {
     margin-left: 5px;
     padding: 2px;
@@ -51,4 +56,9 @@ ul.checklist > li:hover div.checklist-removeitem-icon {
 
 div.checklist-removeitem-icon:hover {
     color: #F44;
+}
+
+.reload-required:after {
+    content: ' *';
+    color: #e32;
 }

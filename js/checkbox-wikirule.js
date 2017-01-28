@@ -20,6 +20,17 @@ exports.init = function(parser) {
 	this.matchRegExp = /^\[([ xX])\] .*$/mg;
 };
 
+/*
+Retrieve the configuration state indicating if items should be striken
+*/
+exports.shouldStrikeChecked = function() {
+    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
+    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
+    var strikeChecked = configWidgetFields["strike-checked"] || "true";
+    return (strikeChecked === "true");
+}
+
 exports.parse = function() {
     var listItems = [];
     var listStartPos = this.parser.pos;
@@ -80,6 +91,9 @@ exports.parse = function() {
         };
         if (match[1] === "x" || match[1] === "X") {
             checkbox.attributes.checked = {type: "boolean", value: true};
+            if (this.shouldStrikeChecked()) {
+                itembody.attributes.class.value += ", checkedchecklistitem-body";
+            }
         }
 
         var removeicon = {
