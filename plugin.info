@@ -2,7 +2,7 @@
     "title": "$:/plugins/tgrosinger/tw5-checklist",
     "description": "Checklist Plugin",
     "author": "Tony Grosinger",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "core-version": ">=5.0.9",
     "source": "https://github.com/tgrosinger/tw5-checklist",
     "plugin-type": "plugin",

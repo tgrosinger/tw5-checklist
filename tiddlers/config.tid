@@ -19,6 +19,13 @@ Save and reload the wiki to activate changes.
             checked="true" unchecked="false" default="true"></$checkbox>
     </td>
   </tr>
+  <tr>
+    <th align="left" class="reload-required">Show Clear-All: </th>
+    <td>
+        <$checkbox field="show-clearall" tiddler="$:/plugins/tgrosinger/tw5-checklist/Configuration"
+            checked="true" unchecked="false" default="true"></$checkbox>
+    </td>
+  </tr>
 </table>
 
 &#42; - indicates page reload is necessary for setting change to take effect

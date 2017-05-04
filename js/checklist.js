@@ -57,7 +57,12 @@ CheckListWidget.prototype.execute = function() {
     this.renderChildren(domNode);
 
     $tw.utils.each(domNode.childNodes, function(childNode) {
-        if (childNode.childNodes[1].className === "checklist-newitem") {
+        if (childNode.childNodes[0].className === "checklist-clearall") {
+            // ClearAllChecks, do not use checkbox listener
+            $tw.utils.addEventListeners(childNode.childNodes[0],
+                    [{name: "click", handlerObject: this,
+                        handlerMethod: "handleClearChecksEvent"}]);
+        } else if (childNode.childNodes[1].className === "checklist-newitem") {
             // NewListItem, do not use checkbox listener
             $tw.utils.addEventListeners(childNode.childNodes[1],
                     [{name: "keypress", handlerObject: this,
@@ -81,6 +86,27 @@ CheckListWidget.prototype.execute = function() {
     }.bind(this));
 
     this.parentDomNode.insertBefore(domNode, this.nextSibling);
+};
+
+// When the user clicks the clear-all button, remove all checks
+CheckListWidget.prototype.handleClearChecksEvent = function(event) {
+    var domItem = event.target.parentNode;
+    var domList = domItem.parentNode;
+
+    var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
+    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
+    var bodyLen = bodyList.length;
+
+    for (var i = 0; i < bodyLen; i++) {
+        bodyList[i] = bodyList[i].replace("[x]", "[ ]");
+        bodyList[i] = bodyList[i].replace("[X]", "[ ]");
+    }
+
+    // Save the updated body
+    var newBody = tiddlerBody.substring(0, this.startPos) +
+                  bodyList.join("\n") +
+                  tiddlerBody.substring(this.stopPos);
+    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
 };
 
 // When the user starts typing, change the pencil icon into a checkbox

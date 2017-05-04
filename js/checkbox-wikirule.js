@@ -31,6 +31,14 @@ exports.shouldStrikeChecked = function() {
     return (strikeChecked === "true");
 }
 
+exports.shouldShowClearAll = function() {
+    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
+    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
+    var showClearAll = configWidgetFields["show-clearall"] || "true";
+    return (showClearAll === "true");
+}
+
 exports.parse = function() {
     var listItems = [];
     var listStartPos = this.parser.pos;
@@ -120,6 +128,25 @@ exports.parse = function() {
 
         match = this.matchRegExp.exec(this.parser.source);
     } while (match != null && match.index == 1 + this.parser.pos);
+
+    if (this.shouldShowClearAll()) {
+        // show the clear-all button
+        listItems.push({
+            type: "element",
+            tag: "li",
+            children: [
+                {
+                    type: "element",
+                    tag: "input",
+                    attributes: {
+                        class: {type: "string", value: "checklist-clearall"},
+                        type: {type: "string", value: "button"},
+                        value: {type: "string", value: "↻ Clear all"}
+                    }
+                }
+            ]
+        });
+    }
 
     return [{
         type: "checklist",
