@@ -1,6 +1,5 @@
 title: $:/plugins/tgrosinger/tw5-checklist/stylesheet
 tags: $:/tags/Stylesheet
-type: text/css
 
 ul.checklist {
     list-style: none;
@@ -13,24 +12,33 @@ ul.checklist > li {
 }
 
 ul.checklist > li:first-child {
-    margin-bottom: 2px;
+    margin-bottom: 0.75em;
 }
 
-span.checklistitem-body {
-    margin-left: 5px;
+label.checklistitem-body {
+    margin-left: -0.9em;
+    margin-right: 3em;
+    position: relative;
+    left: 1.75em;
 }
 
-span.checkedchecklistitem-body {
-    color: #ddd;
+input:checked + label.checklistitem-body {
+    color: <<colour muted-foreground>>;
+}
+
+<$list filter="[[$:/plugins/tgrosinger/tw5-checklist/Configuration]field:strike-checked[true]]">
+input:checked + label.checklistitem-body {
     text-decoration: line-through;
 }
+</$list>
 
 input.checklist-newitem {
-    margin-left: 5px;
+    margin-left: 1em;
     padding: 2px;
     border: none;
     border-bottom: solid 2px #c9c9c9;
     transition: border 0.3s;
+    width: 90%;
 }
 
 input:focus.checklist-newitem {
@@ -61,4 +69,8 @@ div.checklist-removeitem-icon:hover {
 .reload-required:after {
     content: ' *';
     color: #e32;
+}
+
+input.checklist-clearall {
+    margin-top: 0.75em;
 }
