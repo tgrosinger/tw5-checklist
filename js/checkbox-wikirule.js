@@ -21,30 +21,23 @@ exports.init = function(parser) {
 };
 
 /*
-Retrieve the configuration state indicating if items should be striken
+Retrieve the configuration state of the clear all button
 */
-exports.shouldStrikeChecked = function() {
-    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
-    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
-
-    var strikeChecked = configWidgetFields["strike-checked"] || "true";
-    return (strikeChecked === "true");
-}
 
 exports.shouldShowClearAll = function() {
     var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
     var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
-
     var showClearAll = configWidgetFields["show-clearall"] || "true";
     return (showClearAll === "true");
 }
+
 
 exports.parse = function() {
     var listItems = [];
     var listStartPos = this.parser.pos;
     var match = this.match;
 
-    // Start the list with a "New List Item" placeholder
+    // Start the list with a "New List Item" placeholder – TODO: make a form
     listItems.push({
         type: "element",
         tag: "li",
@@ -79,40 +72,54 @@ exports.parse = function() {
                 this.parser.source.substring(startPos + 4, this.parser.pos),
                 {parseAsInline: true});
 
-        // Put the listitem body in a span for easy reference
-        var itembody = {
-            type: "element",
-            tag: "span",
-            attributes: {
-                class: {type: "string", value: "checklistitem-body"}
-            },
-            children: parseResults.tree
-        };
-
+        // Use the listitem body as a label for the checkbox to get better accessibility
         var checkbox = {
             type: "element",
             tag: "input",
             attributes: {
                 type: {type: "string", value: "checkbox"},
-                pos: {type: "string", value: match.index}
+                pos: {type: "string", value: match.index},
+                id: {type: "string", value: match.index}
             }
         };
         if (match[1] === "x" || match[1] === "X") {
             checkbox.attributes.checked = {type: "boolean", value: true};
-            if (this.shouldStrikeChecked()) {
-                itembody.attributes.class.value += ", checkedchecklistitem-body";
-            }
         }
 
-        var removeicon = {
+        var itembody = {
             type: "element",
-            tag: "div",
+            tag: "label",
             attributes: {
-                class: {type: "string", value: "checklist-removeitem-icon"}
+                class: {type: "string", value: "checklistitem-body"},
+                for: {type: "string", value: match.index}
+            },
+            children: parseResults.tree
+        };
+
+        // Make a button to remove the list item – TODO: use svg bin icon
+/*
+  <svg style="display: none">
+    <symbol id="bin-icon" viewBox="0 0 20 20">
+      <path d="[path data here]">
+    </symbol>
+  </svg>
+…
+<button aria-label="delete">
+  <svg>
+    <use xlink:href="#bin-icon"></use>
+  </svg>
+</button>
+*/
+        var removebutton = {
+            type: "element",
+            tag: "button",
+            attributes: {
+                class: {type: "string", value: "tc-btn-invisible tc-btn-mini"},
+                title: {type: "string", value: "delete"}
             },
             children: [
                 // Fancy X icon
-                {type: "entity", entity: "&#x2716;"}
+                {type: "entity", entity: "&times;"}
             ]
         };
 
@@ -122,7 +129,7 @@ exports.parse = function() {
             children: [
                 checkbox,
                 itembody,
-                removeicon
+                removebutton
             ]
         });
 
