@@ -31,26 +31,40 @@ exports.shouldShowClearAll = function() {
     return (showClearAll === "true");
 }
 
+/*
+Create list items
+*/
 
 exports.parse = function() {
     var listItems = [];
     var listStartPos = this.parser.pos;
     var match = this.match;
 
-    // Start the list with a "New List Item" placeholder – TODO: make a form
+    // Start the list with a "New List Item" placeholder
+    // TODO: make a form and remove from list
+
     listItems.push({
         type: "element",
         tag: "li",
         children: [
             {
                 type: "element",
-                tag: "span",
+                tag: "label",
                 attributes: {
-                    class: {type: "string", value: "checklist-newitem-icon"}
+                    class: {type: "string", value: "checklist-newitem-icon"},
+                    for: {type: "string", value: "checklist-new"}
                 },
                 children: [
-                    // Fancy pencil icon
-                    {type: "entity", entity: "&#x270e;"}
+                    {
+                        type: "element",
+                        tag: "span",
+                        attributes: {
+                            class: {type: "string", value: "checklist-vh"}
+                        },
+                        children: [
+                            {type: "text", text: "add an item to the list"}
+                        ]
+                    }
                 ]
             },
             {
@@ -58,12 +72,39 @@ exports.parse = function() {
                 tag: "input",
                 attributes: {
                     class: {type: "string", value: "checklist-newitem"},
+                    id: {type: "string", value: "checklist-new"},
                     placeholder: {type: "string", value: "New list item (WikiText)"}
+                    // impossible? add an aria-label "Write a new todo item"
+                    // attribute aria-label seems to be missing in $:/core/modules/widgets/edit.js 
                 }
+            },
+            // (pseudo) button to add the new item to the list
+            // TODO: change to sumit-button of the form
+            {
+                type: "element",
+                tag: "button",
+                attributes: {
+                    class: {type: "string", value: "tc-btn-invisible tc-btn-mini checklist-add"},
+                    title: {type: "string", value: "add to list"}
+                },
+                children: [
+                    {
+                        type: "element",
+                        tag: "span",
+                        attributes: {
+                            class: {type: "string", value: "checklist-vh"}
+                        },
+                        children: [
+                            {type: "text", text: "add list item"}
+                        ]
+                    }
+                ]
             }
+            // end of button
         ]
     });
 
+    // Create items
     do {
         var startPos = this.parser.pos;
         this.parser.pos = this.matchRegExp.lastIndex;
@@ -96,7 +137,8 @@ exports.parse = function() {
             children: parseResults.tree
         };
 
-        // Make a button to remove the list item – TODO: use svg bin icon
+        // Make a button to delete the item
+        // TODO: use svg bin icon, pattern as follows?
 /*
   <svg style="display: none">
     <symbol id="bin-icon" viewBox="0 0 20 20">
@@ -110,19 +152,34 @@ exports.parse = function() {
   </svg>
 </button>
 */
+        var removelabel = {
+            type: "element",
+            tag: "span",
+            attributes: {
+                class: {type: "string", value: "checklist-vh"},
+// the next line does nothing, it works here but nowhere else :–(
+                text: {type: "indirect", textReference: "$:/language/Buttons/Delete/Caption"}
+            },
+            children: [
+                {type: "text", text: "delete list item"}
+            ]
+        };
+
         var removebutton = {
             type: "element",
             tag: "button",
             attributes: {
-                class: {type: "string", value: "tc-btn-invisible tc-btn-mini"},
+                class: {type: "string", value: "tc-btn-invisible tc-btn-mini checklist-remove"},
                 title: {type: "string", value: "delete"}
             },
             children: [
                 // Fancy X icon
-                {type: "entity", entity: "&times;"}
+                {type: "entity", entity: "&#x2716;"},
+                removelabel
             ]
         };
 
+        // add the item to the list
         listItems.push({
             type: "element",
             tag: "li",
@@ -138,19 +195,32 @@ exports.parse = function() {
 
     if (this.shouldShowClearAll()) {
         // show the clear-all button
+        var clearallbutton = {
+            type: "element",
+            tag: "button",
+            attributes: {
+                class: {type: "string", value: "checklist-clearall"}
+            },
+            children: [
+                {
+                    type: "element",
+                    tag: "span",
+                    attributes: {
+                        class: {type: "string", value: "checklist-clearall-label"}
+                    },
+                    children: [
+                        {type: "text", text: "Clear all"}
+                    ]
+                }
+            ]
+        };
+
+        // TODO: remove this button from the list
         listItems.push({
             type: "element",
             tag: "li",
             children: [
-                {
-                    type: "element",
-                    tag: "input",
-                    attributes: {
-                        class: {type: "string", value: "checklist-clearall"},
-                        type: {type: "string", value: "button"},
-                        value: {type: "string", value: "↻ Clear all"}
-                    }
-                }
+                clearallbutton
             ]
         });
     }
