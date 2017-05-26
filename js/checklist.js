@@ -56,6 +56,7 @@ CheckListWidget.prototype.execute = function() {
     this.makeChildWidgets();
     this.renderChildren(domNode);
 
+    //  If this is the clear all button … 
     $tw.utils.each(domNode.childNodes, function(childNode) {
         if (childNode.childNodes[0].className === "checklist-clearall") {
             // ClearAllChecks, do not use checkbox listener
@@ -71,6 +72,7 @@ CheckListWidget.prototype.execute = function() {
                     {name: "blur", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"},
                     {name: "keyup", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"}
             ]);
+    // If this is a normal checklist item …
         } else {
             if (childNode.childNodes[0].checked) {
                 $tw.utils.addEventListeners(childNode,
@@ -111,13 +113,15 @@ CheckListWidget.prototype.handleClearChecksEvent = function(event) {
 
 // When the user starts typing, change the pencil icon into a checkbox
 CheckListWidget.prototype.handleNewItemTypingEvent = function(event) {
+/* ### Commented out because this checkbox does not work in the sense of marking the newly entered item as done ###
     var oldNode = event.target.parentNode.childNodes[0];
-    if (oldNode.nodeName == "SPAN" || oldNode.nodeName == "span") {
+    if (oldNode.nodeName == "label" || oldNode.nodeName == "LABEL") {
         var newCheckbox = document.createElement("input");
         newCheckbox.type = "checkbox";
 
         event.target.parentNode.replaceChild(newCheckbox, oldNode);
     }
+### END of comment */
 };
 
 // On blur or enter, save the new list item
