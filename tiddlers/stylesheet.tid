@@ -4,16 +4,57 @@ tags: $:/tags/Stylesheet
 ul.checklist {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 1.5em;
 }
 
 ul.checklist > li {
     position: relative;
+    width: calc(100% - 1.5em);
 }
 
-ul.checklist > li:first-child {
-    margin-bottom: 0.75em;
+
+/* input form */
+
+.checklist-newitem-icon::before {
+    content: "&#x270e;";
 }
+
+input.checklist-newitem {
+    margin-left: 1em;
+    margin-bottom: 0.75em;
+    padding: 2px;
+    border: none;
+    border-bottom: solid 2px <<colour sidebar-tab-background>>;
+    transition: border 0.3s;
+    width: calc(100% - 2em - 20px);
+}
+
+input:focus.checklist-newitem {
+    border-bottom: solid 2px <<colour notification-border>>;
+}
+
+
+/* placeholder text */
+
+::-webkit-input-placeholder { 
+  color: #444;
+  font-style: italic;
+}
+::-moz-placeholder { 
+  color: #444;
+  font-style: italic;
+}
+:-ms-input-placeholder { 
+  color: #444;
+  font-style: italic;
+}
+:-moz-placeholder { 
+  color: #444;
+  font-style: italic;
+}
+
+
+/* list items content */
 
 label.checklistitem-body {
     margin-left: -0.9em;
@@ -32,45 +73,63 @@ input:checked + label.checklistitem-body {
 }
 </$list>
 
-input.checklist-newitem {
-    margin-left: 1em;
-    padding: 2px;
-    border: none;
-    border-bottom: solid 2px #c9c9c9;
-    transition: border 0.3s;
-    width: 90%;
+
+/* buttons */
+
+button.checklist-add {
+    position: relative;
+    left: 0.75em;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2211%22%20height%3D%2211%22%3E%0A%3Crect%20width%3D%221%22%20height%3D%227%22%20x%3D%225%22%20y%3D%222%22%20fill%3D%22%239B9B9B%22%2F%3E%0A%3Crect%20width%3D%227%22%20height%3D%221%22%20x%3D%222%22%20y%3D%225%22%20fill%3D%22%239B9B9B%22%2F%3E%0A%3C%2Fsvg%3E');
+    background-size: 100%;
 }
 
-input:focus.checklist-newitem {
-    border-bottom: solid 2px #969696;
+button.checklist-add:hover, button.checklist-add:focus {
+    background-color: <<colour sidebar-tab-background>>;
 }
 
-div.checklist-removeitem-icon {
-    bottom: 0;
-    color: #777;
+button.checklist-remove {
+    color: <<colour sidebar-muted-foreground>>;
     cursor: pointer;
     font-size: 14px;
-    left: -20px;
-    opacity: 0;
+    left: -1.8em;
     position: absolute;
     text-align: center;
-    top: 0;
-    width: 20px;
+    top: 3px;
+    width: 18px;
+    height: 18px;
 }
 
-ul.checklist > li:hover div.checklist-removeitem-icon {
-    opacity: 1;
+ul.checklist > li:hover button.checklist-remove {
+    color: <<colour sidebar-muted-foreground-hover>>;
 }
 
-div.checklist-removeitem-icon:hover {
-    color: #F44;
+button.checklist-remove:hover,
+button.checklist-remove:focus {
+    color:  <<colour dirty-indicator>>;
+    background-color: <<colour sidebar-tab-background>>;
+    border-radius: 5px;
 }
 
-.reload-required:after {
-    content: ' *';
-    color: #e32;
-}
-
-input.checklist-clearall {
+button.checklist-clearall {
     margin-top: 0.75em;
+}
+
+button.checklist-clearall::before {
+    content: "↻ ";
+}
+
+
+/* visualliy hidden, accessible for screen reader */
+
+.checklist-vh {
+    position: absolute !important;
+    clip: rect(1px, 1px, 1px, 1px);
+    padding:0 !important;
+    border:0 !important;
+    height: 1px !important;
+    width: 1px !important;
+    overflow: hidden;
 }
