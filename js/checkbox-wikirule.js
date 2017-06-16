@@ -27,6 +27,7 @@ Retrieve the configuration state of the clear all button
 exports.shouldShowClearAll = function() {
     var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
     var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
     var showClearAll = configWidgetFields["show-clearall"] || "true";
     return (showClearAll === "true");
 }
@@ -41,31 +42,17 @@ exports.parse = function() {
     var match = this.match;
 
     // Start the list with a "New List Item" placeholder
-    // TODO: make a form and remove from list
-
     listItems.push({
         type: "element",
         tag: "li",
         children: [
             {
                 type: "element",
-                tag: "label",
+                tag: "span",
                 attributes: {
                     class: {type: "string", value: "checklist-newitem-icon"},
                     for: {type: "string", value: "checklist-new"}
-                },
-                children: [
-                    {
-                        type: "element",
-                        tag: "span",
-                        attributes: {
-                            class: {type: "string", value: "checklist-vh"}
-                        },
-                        children: [
-                            {type: "text", text: "add an item to the list"}
-                        ]
-                    }
-                ]
+                }
             },
             {
                 type: "element",
@@ -78,8 +65,19 @@ exports.parse = function() {
                     // attribute aria-label seems to be missing in $:/core/modules/widgets/edit.js 
                 }
             },
+            // label for the input field
+            {
+                type: "element",
+                tag: "label",
+                attributes: {
+                    class: {type: "string", value: "checklist-vh"},
+                    for: {type: "string", value: "checklist-new"}
+                },
+                children: [
+                    {type: "text", text: "Write a new item for the list."}
+                ]
+            },
             // (pseudo) button to add the new item to the list
-            // TODO: change to sumit-button of the form
             {
                 type: "element",
                 tag: "button",
@@ -104,7 +102,7 @@ exports.parse = function() {
         ]
     });
 
-    // Create items
+    // Create items in a loop
     do {
         var startPos = this.parser.pos;
         this.parser.pos = this.matchRegExp.lastIndex;
@@ -114,6 +112,15 @@ exports.parse = function() {
                 {parseAsInline: true});
 
         // Use the listitem body as a label for the checkbox to get better accessibility
+        var itembody = {
+            type: "element",
+            tag: "label",
+            attributes: {
+                for: {type: "string", value: match.index}
+            },
+            children: parseResults.tree
+        };
+
         var checkbox = {
             type: "element",
             tag: "input",
@@ -127,38 +134,12 @@ exports.parse = function() {
             checkbox.attributes.checked = {type: "boolean", value: true};
         }
 
-        var itembody = {
-            type: "element",
-            tag: "label",
-            attributes: {
-                class: {type: "string", value: "checklistitem-body"},
-                for: {type: "string", value: match.index}
-            },
-            children: parseResults.tree
-        };
-
         // Make a button to delete the item
-        // TODO: use svg bin icon, pattern as follows?
-/*
-  <svg style="display: none">
-    <symbol id="bin-icon" viewBox="0 0 20 20">
-      <path d="[path data here]">
-    </symbol>
-  </svg>
-…
-<button aria-label="delete">
-  <svg>
-    <use xlink:href="#bin-icon"></use>
-  </svg>
-</button>
-*/
         var removelabel = {
             type: "element",
             tag: "span",
             attributes: {
-                class: {type: "string", value: "checklist-vh"},
-// the next line does nothing, it works here but nowhere else :–(
-                text: {type: "indirect", textReference: "$:/language/Buttons/Delete/Caption"}
+                class: {type: "string", value: "checklist-vh"}
             },
             children: [
                 {type: "text", text: "delete list item"}
@@ -173,8 +154,6 @@ exports.parse = function() {
                 title: {type: "string", value: "delete"}
             },
             children: [
-                // Fancy X icon
-                {type: "entity", entity: "&#x2716;"},
                 removelabel
             ]
         };
@@ -185,8 +164,8 @@ exports.parse = function() {
             tag: "li",
             children: [
                 checkbox,
-                itembody,
-                removebutton
+                removebutton,
+                itembody
             ]
         });
 
@@ -215,7 +194,6 @@ exports.parse = function() {
             ]
         };
 
-        // TODO: remove this button from the list
         listItems.push({
             type: "element",
             tag: "li",
