@@ -39,3 +39,8 @@ delimited) checklist items will be displayed as a single checklist.
 List items support any inline formatting rules. This means you can create links,
 bold, or anything else found on the
 [[Formatting in WikiText|http://tiddlywiki.com/static/Formatting%2520in%2520WikiText.html]] guide.
+
+! Configuration
+
+Please see [[the configuration|$:/plugins/tgrosinger/tw5-checklist/Configuration]]
+page to learn about and adjust configuration options.
