@@ -21,15 +21,8 @@ exports.init = function(parser) {
 };
 
 /*
-Retrieve the configuration state indicating if items should be striken
+Retrieve the configuration state of the clear all button
 */
-exports.shouldStrikeChecked = function() {
-    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
-    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
-
-    var strikeChecked = configWidgetFields["strike-checked"] || "true";
-    return (strikeChecked === "true");
-}
 
 exports.shouldShowClearAll = function() {
     var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
@@ -38,6 +31,10 @@ exports.shouldShowClearAll = function() {
     var showClearAll = configWidgetFields["show-clearall"] || "true";
     return (showClearAll === "true");
 }
+
+/*
+Create list items
+*/
 
 exports.parse = function() {
     var listItems = [];
@@ -53,24 +50,59 @@ exports.parse = function() {
                 type: "element",
                 tag: "span",
                 attributes: {
-                    class: {type: "string", value: "checklist-newitem-icon"}
-                },
-                children: [
-                    // Fancy pencil icon
-                    {type: "entity", entity: "&#x270e;"}
-                ]
+                    class: {type: "string", value: "checklist-newitem-icon"},
+                    for: {type: "string", value: "checklist-new"}
+                }
             },
             {
                 type: "element",
                 tag: "input",
                 attributes: {
                     class: {type: "string", value: "checklist-newitem"},
+                    id: {type: "string", value: "checklist-new"},
                     placeholder: {type: "string", value: "New list item (WikiText)"}
+                    // impossible? add an aria-label "Write a new todo item"
+                    // attribute aria-label seems to be missing in $:/core/modules/widgets/edit.js 
                 }
+            },
+            // label for the input field
+            {
+                type: "element",
+                tag: "label",
+                attributes: {
+                    class: {type: "string", value: "checklist-vh"},
+                    for: {type: "string", value: "checklist-new"}
+                },
+                children: [
+                    {type: "text", text: "Write a new item for the list."}
+                ]
+            },
+            // (pseudo) button to add the new item to the list
+            {
+                type: "element",
+                tag: "button",
+                attributes: {
+                    class: {type: "string", value: "tc-btn-invisible tc-btn-mini checklist-add"},
+                    title: {type: "string", value: "add to list"}
+                },
+                children: [
+                    {
+                        type: "element",
+                        tag: "span",
+                        attributes: {
+                            class: {type: "string", value: "checklist-vh"}
+                        },
+                        children: [
+                            {type: "text", text: "add list item"}
+                        ]
+                    }
+                ]
             }
+            // end of button
         ]
     });
 
+    // Create items in a loop
     do {
         var startPos = this.parser.pos;
         this.parser.pos = this.matchRegExp.lastIndex;
@@ -79,12 +111,12 @@ exports.parse = function() {
                 this.parser.source.substring(startPos + 4, this.parser.pos),
                 {parseAsInline: true});
 
-        // Put the listitem body in a span for easy reference
+        // Use the listitem body as a label for the checkbox to get better accessibility
         var itembody = {
             type: "element",
-            tag: "span",
+            tag: "label",
             attributes: {
-                class: {type: "string", value: "checklistitem-body"}
+                for: {type: "string", value: match.index}
             },
             children: parseResults.tree
         };
@@ -94,35 +126,46 @@ exports.parse = function() {
             tag: "input",
             attributes: {
                 type: {type: "string", value: "checkbox"},
-                pos: {type: "string", value: match.index}
+                pos: {type: "string", value: match.index},
+                id: {type: "string", value: match.index}
             }
         };
         if (match[1] === "x" || match[1] === "X") {
             checkbox.attributes.checked = {type: "boolean", value: true};
-            if (this.shouldStrikeChecked()) {
-                itembody.attributes.class.value += ", checkedchecklistitem-body";
-            }
         }
 
-        var removeicon = {
+        // Make a button to delete the item
+        var removelabel = {
             type: "element",
-            tag: "div",
+            tag: "span",
             attributes: {
-                class: {type: "string", value: "checklist-removeitem-icon"}
+                class: {type: "string", value: "checklist-vh"}
             },
             children: [
-                // Fancy X icon
-                {type: "entity", entity: "&#x2716;"}
+                {type: "text", text: "delete list item"}
             ]
         };
 
+        var removebutton = {
+            type: "element",
+            tag: "button",
+            attributes: {
+                class: {type: "string", value: "tc-btn-invisible tc-btn-mini checklist-remove"},
+                title: {type: "string", value: "delete"}
+            },
+            children: [
+                removelabel
+            ]
+        };
+
+        // add the item to the list
         listItems.push({
             type: "element",
             tag: "li",
             children: [
                 checkbox,
-                itembody,
-                removeicon
+                removebutton,
+                itembody
             ]
         });
 
@@ -131,19 +174,31 @@ exports.parse = function() {
 
     if (this.shouldShowClearAll()) {
         // show the clear-all button
+        var clearallbutton = {
+            type: "element",
+            tag: "button",
+            attributes: {
+                class: {type: "string", value: "checklist-clearall"}
+            },
+            children: [
+                {
+                    type: "element",
+                    tag: "span",
+                    attributes: {
+                        class: {type: "string", value: "checklist-clearall-label"}
+                    },
+                    children: [
+                        {type: "text", text: "Clear all"}
+                    ]
+                }
+            ]
+        };
+
         listItems.push({
             type: "element",
             tag: "li",
             children: [
-                {
-                    type: "element",
-                    tag: "input",
-                    attributes: {
-                        class: {type: "string", value: "checklist-clearall"},
-                        type: {type: "string", value: "button"},
-                        value: {type: "string", value: "↻ Clear all"}
-                    }
-                }
+                clearallbutton
             ]
         });
     }

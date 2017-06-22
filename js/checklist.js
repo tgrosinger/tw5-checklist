@@ -56,6 +56,7 @@ CheckListWidget.prototype.execute = function() {
     this.makeChildWidgets();
     this.renderChildren(domNode);
 
+    /* add event listeners */
     $tw.utils.each(domNode.childNodes, function(childNode) {
         if (childNode.childNodes[0].className === "checklist-clearall") {
             // ClearAllChecks, do not use checkbox listener
@@ -64,13 +65,11 @@ CheckListWidget.prototype.execute = function() {
                         handlerMethod: "handleClearChecksEvent"}]);
         } else if (childNode.childNodes[1].className === "checklist-newitem") {
             // NewListItem, do not use checkbox listener
-            $tw.utils.addEventListeners(childNode.childNodes[1],
-                    [{name: "keypress", handlerObject: this,
-                        handlerMethod: "handleNewItemTypingEvent"}]);
             $tw.utils.addEventListeners(childNode.childNodes[1], [
                     {name: "blur", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"},
                     {name: "keyup", handlerObject: this, handlerMethod: "handleBlurNewItemEvent"}
             ]);
+    // If this is a normal checklist item …
         } else {
             if (childNode.childNodes[0].checked) {
                 $tw.utils.addEventListeners(childNode,
@@ -79,7 +78,7 @@ CheckListWidget.prototype.execute = function() {
                 $tw.utils.addEventListeners(childNode,
                         [{name: "change", handlerObject: this, handlerMethod: "handleCheckEvent"}]);
             }
-            $tw.utils.addEventListeners(childNode.childNodes[2], [
+            $tw.utils.addEventListeners(childNode.childNodes[1], [
                 {name: "click", handlerObject: this, handlerMethod: "handleRemoveEvent"}
             ]);
         }
@@ -107,17 +106,6 @@ CheckListWidget.prototype.handleClearChecksEvent = function(event) {
                   bodyList.join("\n") +
                   tiddlerBody.substring(this.stopPos);
     $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
-};
-
-// When the user starts typing, change the pencil icon into a checkbox
-CheckListWidget.prototype.handleNewItemTypingEvent = function(event) {
-    var oldNode = event.target.parentNode.childNodes[0];
-    if (oldNode.nodeName == "SPAN" || oldNode.nodeName == "span") {
-        var newCheckbox = document.createElement("input");
-        newCheckbox.type = "checkbox";
-
-        event.target.parentNode.replaceChild(newCheckbox, oldNode);
-    }
 };
 
 // On blur or enter, save the new list item
