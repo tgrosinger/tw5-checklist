@@ -1,4 +1,7 @@
 title: $:/plugins/tgrosinger/tw5-checklist/Configuration
+move-checked: true
+strike-checked: true
+show-clearall: true
 
 Please see the [[homepage|https://grosinger.net/tw5-checklist/]] for more information on the options.
 
