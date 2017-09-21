@@ -233,11 +233,6 @@ CheckListWidget.prototype.handleUncheckEvent = function(event) {
        bodyList.sort(function (a, b) { return a.substring(3).toLowerCase().localeCompare(b.substring(3).toLowerCase()); });
     }
     
-    // Sort items  (if configured to do so)
-    var shouldSort = this.shouldSort();
-    if(shouldSort){
-       bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
-    }
 
     var newBody = tiddlerBody.substring(0, this.startPos) +
                   bodyList.join("\n") +
