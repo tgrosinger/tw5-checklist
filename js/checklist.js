@@ -167,15 +167,19 @@ CheckListWidget.prototype.handleCheckEvent = function(event) {
 
     // Rearrange items (if configured to do so)
     var shouldMove = this.shouldMoveChecked();
-    if (shouldMove) {
-        bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
-        bodyList.splice(itemIndex, 1);
-    }
-
     // Sort items  (if configured to do so)
     var shouldSort = this.shouldSort();
-    if(shouldSort){
-       bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+
+    // These are all combinations
+    if (shouldMove) {
+        if (shouldSort){
+            bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+        }else{
+            bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
+            bodyList.splice(itemIndex, 1);
+        }
+    }else if(shouldSort){
+       bodyList.sort(function (a, b) { return a.substring(3).toLowerCase().localeCompare(b.substring(3).toLowerCase()); });
     }
 
     // Save the updated body
@@ -214,10 +218,19 @@ CheckListWidget.prototype.handleUncheckEvent = function(event) {
 
     // Rearrange items (if configured to do so)
     var shouldMove = this.shouldMoveChecked();
+    // Sort items  (if configured to do so)
+    var shouldSort = this.shouldSort();
+
+    // These are all combinations
     if (shouldMove) {
-        var bodyItem = bodyList[itemIndex];
-        bodyList.splice(itemIndex, 1);
-        bodyList.splice(i, 0, bodyItem);
+        if (shouldSort){
+            bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+        }else{
+            bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
+            bodyList.splice(itemIndex, 1);
+        }
+    }else if(shouldSort){
+       bodyList.sort(function (a, b) { return a.substring(3).toLowerCase().localeCompare(b.substring(3).toLowerCase()); });
     }
     
     // Sort items  (if configured to do so)
