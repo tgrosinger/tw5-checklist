@@ -47,6 +47,19 @@ CheckListWidget.prototype.shouldMoveChecked = function() {
 }
 
 /*
+Retrieve the configuration state indicating if items should be re-sorted
+*/
+CheckListWidget.prototype.shouldSort= function() {
+    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
+    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
+    var sort = configWidgetFields["sort-alphabetically"] || "true";
+    return (sort === "true");
+}
+
+
+
+/*
 Compute the internal state of the widget
 */
 CheckListWidget.prototype.execute = function() {
@@ -159,6 +172,12 @@ CheckListWidget.prototype.handleCheckEvent = function(event) {
         bodyList.splice(itemIndex, 1);
     }
 
+    // Sort items  (if configured to do so)
+    var shouldSort = this.shouldSort();
+    if(shouldSort){
+       bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+    }
+
     // Save the updated body
     var newBody = tiddlerBody.substring(0, this.startPos) +
                   bodyList.join("\n") +
@@ -199,6 +218,12 @@ CheckListWidget.prototype.handleUncheckEvent = function(event) {
         var bodyItem = bodyList[itemIndex];
         bodyList.splice(itemIndex, 1);
         bodyList.splice(i, 0, bodyItem);
+    }
+    
+    // Sort items  (if configured to do so)
+    var shouldSort = this.shouldSort();
+    if(shouldSort){
+       bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
     }
 
     var newBody = tiddlerBody.substring(0, this.startPos) +
