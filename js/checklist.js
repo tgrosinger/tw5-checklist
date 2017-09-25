@@ -120,6 +120,7 @@ CheckListWidget.prototype.handleClearChecksEvent = function(event) {
                   tiddlerBody.substring(this.stopPos);
     $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
 };
+
 CheckListWidget.prototype.reorderList = function(event, bodyList) {
     var domItem = event.target.parentNode;
     var domList = domItem.parentNode;
@@ -177,6 +178,7 @@ CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
 
     var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
     tiddlerBody = tiddlerBody.substring(0, pos) + newItem + tiddlerBody.substring(pos);
+    this.stopPos += newItem.length
     var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
     this.reorderList(event, bodyList) 
 };
