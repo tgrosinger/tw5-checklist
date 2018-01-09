@@ -2,6 +2,7 @@ title: $:/plugins/tgrosinger/tw5-checklist/Configuration
 move-checked: true
 strike-checked: true
 show-clearall: true
+sort-alphabetically: false
 
 Please see the [[homepage|https://grosinger.net/tw5-checklist/]] for more information on the options.
 
@@ -20,6 +21,13 @@ Save and reload the wiki to activate changes.
     <td>
         <$checkbox field="strike-checked" tiddler="$:/plugins/tgrosinger/tw5-checklist/Configuration"
             checked="true" unchecked="false" default="true"></$checkbox>
+    </td>
+  </tr>
+  <tr>
+    <th align="left" class="rerendering-required">Sort list alphabetically: </th>
+    <td>
+        <$checkbox field="sort-alphabetically" tiddler="$:/plugins/tgrosinger/tw5-checklist/Configuration"
+            checked="true" unchecked="false" default="false"></$checkbox>
     </td>
   </tr>
   <tr>

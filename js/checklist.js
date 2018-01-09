@@ -47,6 +47,19 @@ CheckListWidget.prototype.shouldMoveChecked = function() {
 }
 
 /*
+Retrieve the configuration state indicating if items should be re-sorted
+*/
+CheckListWidget.prototype.shouldSort= function() {
+    var configWidgetTitle = "$:/plugins/tgrosinger/tw5-checklist/Configuration";
+    var configWidgetFields = $tw.wiki.getTiddler(configWidgetTitle).fields;
+
+    var sort = configWidgetFields["sort-alphabetically"] || "true";
+    return (sort === "true");
+}
+
+
+
+/*
 Compute the internal state of the widget
 */
 CheckListWidget.prototype.execute = function() {
@@ -108,6 +121,41 @@ CheckListWidget.prototype.handleClearChecksEvent = function(event) {
     $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
 };
 
+CheckListWidget.prototype.reorderList = function(event, bodyList) {
+    var domItem = event.target.parentNode;
+    var domList = domItem.parentNode;
+    
+    var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
+
+    // Rearrange items (if configured to do so)
+    var shouldMove = this.shouldMoveChecked();
+
+    // Sort items  (if configured to do so)
+    var shouldSort = this.shouldSort();
+
+    // These are all combinations
+    if (shouldMove) {
+        // Find the index of the first checked item
+        if (shouldSort){
+            // sort by items subject, grouping checked and unchecked
+            bodyList.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+        }else{
+            // Order only by 3 first chars, so we have order by grouping check and unchecked 
+            bodyList.sort(function (a, b) { return a.substring(0, 3).toLowerCase().localeCompare(b.substring(0, 3).toLowerCase()); });
+        }
+    }else if(shouldSort){
+        // sort by items subject
+       bodyList.sort(function (a, b) { return a.substring(3).toLowerCase().localeCompare(b.substring(3).toLowerCase()); });
+    }
+    
+    // Save the updated body
+    var newBody = tiddlerBody.substring(0, this.startPos) +
+                  bodyList.join("\n") +
+                  tiddlerBody.substring(this.stopPos);
+    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
+
+}
+
 // On blur or enter, save the new list item
 CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
     if (event.type == "keyup" && event.keyCode != 13) {
@@ -130,86 +178,32 @@ CheckListWidget.prototype.handleBlurNewItemEvent = function(event) {
 
     var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
     tiddlerBody = tiddlerBody.substring(0, pos) + newItem + tiddlerBody.substring(pos);
-    $tw.wiki.setText(this.tiddlerTitle, "text", null, tiddlerBody);
+    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos + newItem.length).split("\n");
+    this.reorderList(event, bodyList) 
 };
 
-CheckListWidget.prototype.handleCheckEvent = function(event) {
+
+
+CheckListWidget.prototype.handleChecksEvents = function(event, oldCheckState, newCheckState) {
     var domItem = event.target.parentNode;
     var domList = domItem.parentNode;
     var itemIndex = [].indexOf.call(domList.childNodes, domItem) - 1;
-
+    
     var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
     var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
 
-    // Find the index of the first checked item
-    var i = 1;
-    var firstChecked = domItem.nextSibling;
-    while (firstChecked !== null && !firstChecked.childNodes[0].checked) {
-        i++;
-        firstChecked = firstChecked.nextSibling;
-    }
-
     // Update the tiddler data
-    bodyList[itemIndex] = bodyList[itemIndex].replace("[ ]", "[x]");
+    bodyList[itemIndex] = bodyList[itemIndex].replace(oldCheckState, newCheckState);
+    this.reorderList(event, bodyList) 
 
-    // Rearrange items (if configured to do so)
-    var shouldMove = this.shouldMoveChecked();
-    if (shouldMove) {
-        bodyList.splice(itemIndex + i, 0, bodyList[itemIndex]);
-        bodyList.splice(itemIndex, 1);
-    }
+}
 
-    // Save the updated body
-    var newBody = tiddlerBody.substring(0, this.startPos) +
-                  bodyList.join("\n") +
-                  tiddlerBody.substring(this.stopPos);
-    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
-
-    if (shouldMove) {
-        // Update the DOM (pre-refresh for animations)
-        domList.insertBefore(domItem, firstChecked);
-    }
+CheckListWidget.prototype.handleCheckEvent = function(event) {
+    this.handleChecksEvents(event, "[ ]", "[x]");
 };
 
 CheckListWidget.prototype.handleUncheckEvent = function(event) {
-    var domItem = event.target.parentNode;
-    var domList = domItem.parentNode;
-    var itemIndex = [].indexOf.call(domList.childNodes, domItem) - 1;
-
-    var tiddlerBody = $tw.wiki.getTiddler(this.tiddlerTitle).fields.text;
-    var bodyList = tiddlerBody.substring(this.startPos, this.stopPos).split("\n");
-
-    // Find the index of the first checked item
-    var i = 0;
-    var firstChecked = domList.firstChild.nextSibling; // Skip the newItem input
-    while (firstChecked !== null) {
-        if (firstChecked.childNodes[0].checked || firstChecked == domItem) {
-            break;
-        }
-        i++;
-        firstChecked = firstChecked.nextSibling;
-    }
-
-    // Update the tiddler data
-    bodyList[itemIndex] = bodyList[itemIndex].replace("[x]", "[ ]");
-
-    // Rearrange items (if configured to do so)
-    var shouldMove = this.shouldMoveChecked();
-    if (shouldMove) {
-        var bodyItem = bodyList[itemIndex];
-        bodyList.splice(itemIndex, 1);
-        bodyList.splice(i, 0, bodyItem);
-    }
-
-    var newBody = tiddlerBody.substring(0, this.startPos) +
-                  bodyList.join("\n") +
-                  tiddlerBody.substring(this.stopPos);
-    $tw.wiki.setText(this.tiddlerTitle, "text", null, newBody);
-
-    if (shouldMove) {
-        // Update the DOM (pre-refresh for animations)
-        domList.insertBefore(domItem, firstChecked);
-    }
+    this.handleChecksEvents(event, "[x]", "[ ]");
 };
 
 CheckListWidget.prototype.handleRemoveEvent = function (event) {
