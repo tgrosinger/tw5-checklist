@@ -13,6 +13,9 @@ To add the plugin to your own TiddlyWiki5, just drag this link to the browser wi
 
 [[$:/plugins/tgrosinger/tw5-checklist]]
 
+As always, please backup your ~TiddlyWiki before installing or upgrading. Though
+each release is tested, I am not responsible for lost data.
+
 ! Contributing
 
 Want to help out or have issues to report?
