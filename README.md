@@ -1,7 +1,7 @@
 # tw5-checklist
 Simple checklist widget for TiddlyWiki5
 
-For more information about this [TiddlyWiki](http://tiddlywiki.com) plugin, please see the example TiddlyWiki file [tw-checklist.html](https://raw.githubusercontent.com/gnsiva/tw5-checklist/update-documentation/README.md) in this repository.
+For more information about this [TiddlyWiki](http://tiddlywiki.com) plugin, please see the example TiddlyWiki file [tw-checklist.html](https://raw.githubusercontent.com/gnsiva/tw5-checklist/update-documentation/tw-checklist.html) in this repository.
 
 ## License
 
